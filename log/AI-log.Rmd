@@ -15,4 +15,4 @@ Remember to use this to log your project process every time you use AI. Each tim
 
 | Date | Stage | Tool | What I asked | What I did with it |
 |---|---|---|---|---|
-| | | | | | 
+|Nov 17, 2026 | Stage 2 | GPT-6 | Asked to scour the web for sources I could check by hand, asked it to look at what it could actually access because my prior uses of it for other projects would give bad links | Followed a link to a promising source and looked at validity of other sources, found good source to work with and confirmed its legitimacy | 

@@ -1,6 +1,6 @@
 # AI-log
 
-2026-10-28
+2026-11-18
 
 # Instructions
 
@@ -9,6 +9,10 @@ Each time you add a row, commit it, with relevant notes about updating
 the log. This allows me to be able to see how you worked through
 problems if using LLMs.
 
+------------------------------------------------------------------------
+
+# AI Log
+
 | Date | Stage | Tool | What I asked | What I did with it |
-|------|-------|------|--------------|--------------------|
-|      |       |      |              |                    |
+|----|----|----|----|----|
+| Nov 17, 2026 | Stage 2 | GPT-6 | Asked to scour the web for sources I could check by hand, asked it to look at what it could actually access because my prior uses of it for other projects would give bad links | Followed a link to a promising source and looked at validity of other sources, found good source to work with and confirmed its legitimacy |

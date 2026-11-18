@@ -1,16 +1,16 @@
 ---
-title: "Data Audit & Overview Template" # Replace with something more relevant
-author: "Your name here"
-date: "`r format(Sys.Date(), '%d %B %Y')`" # What does this do? What is Sys.Date()?
+title: "Data Overview: 3rd down decision-making in the CFL" 
+author: "Tyler Forbes"
+date: "`r format(Sys.Date(), '%d %B %Y')`" # exact time when the markdown is knitted
 
 format: 
   gfm: 
-    toc: true # What is TOC in this scenerio? Render this template and see what happens when you turn it to false.
+    toc: true #OC IS TABLE OF CONTENTS!
     df_print: kable
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set( # You may not have seen this series of options before, test out knitting the md file and changing the T/F values!
+knitr::opts_chunk$set( 
   echo = FALSE,        
   message = FALSE,
   warning = FALSE
@@ -20,7 +20,7 @@ knitr::opts_chunk$set( # You may not have seen this series of options before, te
 library(tidyverse)
 # library(sf)        # if you are working with spatial data, this is a very useful base package!
 # library(readxl)    # if any source arrives as a spreadsheet, this helps with excel files. 
-# library(readr)     # Another useful package, this can help with csv files etc.
+library(readr)     # Another useful package, this can help with csv files etc.
 ```
 
 ```{=html}
@@ -40,46 +40,43 @@ This document will live in your final project folder in your repository alongsid
 
 # 1: Project Overview
 
-[Two or three sentences covering your hypothesis or what you are building. Assume your reader has not seen your proposal.]
-
+In the Canadian Football League, 3rd down is the kind of play where if a team does not reach the line to gain, they turn the ball over to the other team. In response to the pressure, teams decide to punt the ball downfield, kick for a field goal, or take the risk and play the ball to get a first down. My project aims to help teams make better decisions in this scenario using play-by-play data from the 2024 and 2025 seasons so teams aren't just driven by fear, but also data.
 -----
 
 # 2: Data Sources
 
 <!-- For the section numbers above, remember to update if needed for multiple sources or removing unneeded subsections -->
 
-\[This section covers everything you went looking for in your data audit. If you found sources that you chose not to use for the project itself, put them in! That helps your reader understand all the options you were considering as you worked through it.\]
 
 ## 2.1 Summary of sources
 
-\[Fill in one row per source you investigated. Include the ones you rejected in the `Using?` column. This table is the quick reference your reader checks before reading anything else. A clear table will give a reader a good idea of what the focus is beyond the overview.\]
 
 ```{r source-summary, echo=FALSE}
 sources <- tribble(
   ~Source,            ~Producer,          ~Format,  ~Coverage,          ~Using,
-  "[source name]",    "[organization]",   "[CSV]",  "[place, years]",   "Yes",
-  "[source name]",    "[organization]",   "[PDF]",  "[place, years]",   "Yes",
-  "[source name]",    "[organization]",   "[API]",  "[place, years]",   "No, see 2.4"
+  "CFL Talk",    "Canadian Football Forum",   "PDF",  "CFL, 2024-present",   "No",
+  "CFLCharts.ca",    "CFLCharts.ca - third-party site using CFL data",   "CSV",  "CFL, 2024-2025",   "Yes",
+  "CFL API",    "CFL, Statsperform/Customerhub",   "API",  "CFL, 2023-present",   "No"
 )
 
 knitr::kable(sources)
 ```
 
-## 2.2.1: \[name 1\]
+## 2.2.1: CFL Charts PbP Data
 
-**Producer and authority.** \[Who made this dataset, under what grant, mandate, legal authority, initiative, etc. Ex: If a municipality publishes it, which department, and were they required to? If a researcher published it, what grant was it under? If it's an open source publication from an organization, do they describe why it is published?\]
+**Producer and authority.** CFLCharts.ca is a third-party site using public play-by-play and other game information given by the CFL's API, with additional stats like win probabilities and expected points for valuing game situations. It is likely just a passionate fan publishing to share insights.
 
-**Original Dataset Purpose.** \[Why was this collected? The original author likely didn't have the exact same research question as you.\]
+**Original Dataset Purpose.** Observing the site, it looks like just a passionate CFL fan with a data science background who wanted to expand on game data shared their findings. There's no public name on the site or the twitter page.
 
-**Collection method.** \[How did the values collected get into the file? Sensor, survey, administrative by-product, manual entry, something nobody can tell you? Remember that no answer found is still and answer!\]
+**Collection method.** The data is collected from the CFL API's play-by-play info. The data is not manually checked for accuracy.
 
-**Coverage and resolution.** \[Spatial extent, temporal range, reporting frequency, unit of observation.\]
+**Coverage and resolution.** One row per recorded play. A single game dataset has 148 plays with 93 columns. The coverage being used is all of the 2024 season and a majority of the 2025 season.
 
-**Licence.** \[Find the licence declaration and put the shorthand here. If you cannot find it, say here and complete section 3.2.\]
+**Licence.** Not found
 
-**Access.** \[How you got it, and whether a future user could get it the same way. Include the date you retrieved it if it is from a website, as sometimes web portals or search algorithms can change and make your first search method difficult to replicate.\]
+**Access.** It was retrieved from cflcharts.ca, a website with a very simple interface. The base link is where the match data is accessed from. I accessed it Nov 18. Data stopped being posted on the site in September 2025, so it's reasonable to assume a chance that the site could come down without warning.
 
-**Known problems.** \[What is wrong with it on a first look-through? Are there any missing years, survey answers, changed definitions, inconsistent identifiers, or NA values, etc. in the dataset?\]
+**Known problems.** The About section indicates a possibility of slightly inaccurate data. Also, EP and EPA statistics are not very clear on what exactly they are, although definitions can be found with clues and maybe some reverse engineering. Data is incomplete in that the 2025 season's data was not fully posted online, although datasets for each game are still available online. Another thing to be noted is the use of only one data source, although this could be considered a unique project, a problem with this one dataset that arises in the future could cause a big pivot prevented by a bigger group of sources.
 
 ```{r source-1-load}
 # Load the RAW file, as received into this code block. The code below when uncommented will read it from your final project / RProject folder, and show the first x (in this case I've piped to show 6) lines. Change as needed.
@@ -88,29 +85,23 @@ knitr::kable(sources)
 
 # Show the reader its actual shape.
 
-# raw_1 <- read_csv("data/raw/[filename].csv") # example for a csv file
-# glimpse(raw_1) |> select(1:6) 
+raw_game_1 <- read_csv("data/raw/WEEK 14 - CGY @ EDM - Play by Play.csv") # example for a csv file
+glimpse(raw_game_1) %>% select(1:6) 
 ```
 
-\[One or two sentences on what the output above shows. Feel free to note anything new or hard for you to initially understand in the structure, types, source, or size.\]
 
-## 2.2.2 \[name 2\]
-
-\[Repeat the full structure above for every source you are using. Copy the headings and the loaded source's descriptive sentences below.\]
-
-```{r source-2-load}
-
-```
+The size is small since this is one of 80 or so games I will be combining in the future. Thankfully the game id and name is indicated in the dataset for each game so not as much of a headache is caused.
 
 ## 2.3: Investigated and rejected sources
 
-\[One or two sentences per rejected source: what it was, why you checked it out. Some examples: licensing permissions, resolution mismatch, paywall, abandoned since 2017, aggregated beyond its usefulness, changed project idea, etc.
+CFL Talk: PDFs were too time-consuming to extract data from, 15 page documents for each individual game with lots of buttons and dropdowns to press. Checked it out because it had up-to-date information but the info I can get elsewhere will do the job for this kind of work studying a general decision instead of game or player trends.
 
-Documenting why a source was rejected saves the next person the time you spent finding out the best source for your project. Negative results are not bad news!\]
+CFL API: Had problems documented online about moving APIs in 2023 and paywalls blocked in-depth data. No direct structured access to the new API could be established in an easy way. Checked it out because it is direct from the source and APIs have lots of potential to be helpful.
+
 
 ## 2.4: What I could not find
 
-\[If you changed your project idea due to lack of data, explain what you expected to find more easily but does not, or exists and is not obtainable. Name who holds it, if you know the source. Absence is a finding about how an organization or community's data is managed.\]
+I could not find a full CSV collection for CFLcharts for the 2025 season and no bulk CSV download as that part of the site is "under construction" or something; i.e. likely abandoned. Explicit data license was also not found, and specifics on what the EP model within the data is. 
 
 ----
 
@@ -122,34 +113,28 @@ Documenting why a source was rejected saves the next person the time you spent f
 # Note how there is a name in each code block, this 
 licences <- tribble(
   ~Source,          ~Licence,                    ~Attribution_required, ~Attribution_given,
-  "[source name 1]",  "[e.g. OGL Canada 2.0]",   "Yes",                 "Yes, see below",
-  "[source name 2]",  "[licence]",                 "[Yes/No]",            "[Yes/No]"
+  "CFLcharts",  "indirect-CFL's terms of use",   "Not specified",                 "Yes, source credited",
 )
 
 knitr::kable(licences)
 ```
 
-**Attribution statements.** \[Reproduce the exact attribution each licence requires, aka the wording the licence specifies.\]
 
-## 3.2: Unresolved licensing \[If you were able to find all licencing, delete this\]
+## 3.2: Unresolved licensing 
 
-\[For any source where you could not determine the licence include: what you tried, who you contacted or what you found, and what you concluded about permissible use based on the project. "Unknown, this is my search or web investigation trail" is worth full marks.\]
+I was unable to find a direct license for CFLcharts or the actual CFL API. I looked through the 'about', 'updates' and 'raw data' sections on the website, as well as every other tab and individual game sheet within the website. I looked outward and found the CFL terms of use, which allow use of their website contents for individual non-commercial and informational purposes only. It's unknown if any attribution is required but the site will be credited as well as where the data was derived from, as CFLcharts states "All data on CFLCharts.ca is sourced from the CFL's public facing API".
 
 ## 3.3: Downstream permissions
 
-\[What can someone else do with your data project *output*? If you combine sources under incompatible licences, your merged product may be more restricted than either input was. Work out what licence you can actually offer, and state it. If all open data, state it.\]
+No open license offered for the combined (combining data for each game) dataset, due to unclear third-party redistribution rights. I can still offer a license for my code and written explanations.
+I can offer an MIT License for my data scripts.
+I can offer a CC BY type of license for open access to my analysis work.
 
 ----
 
 # 4: Consent and identifiability
 
-\[If your data does not describe people, say so explicitly and explain why you are confident of that then move on.\]
-
-**Consent.** \[If you collected it: what participants agreed to your survey, and how was their data and consent was recorded. If someone else collected it: what were people told at the time, and does your use fall inside that? If it is your own data, what are you comfortable with people using it for in the future if someone else downloaded it?\]
-
-**Identifiability.** \[How many people are in the smallest reported cell? How small is the population of the place or community you are describing? If it does reference people's data in a public manner (sports stats like goals or time), that is public data. If it is a conversation from a person who did not consent for their interview to be shared, it's not.\]
-
-**How sensitive data will be used.** \[Suppression of identifiable information in your published dataset, aggregation to a coarser unit (bigger groups etc), withholding identifying variables, or a decision not to publish part of the dataset.\]
+The statistics being used are public professional sports statistics, including information about clubs and players that are publicly identified in news publications and all other kinds of media. No private information is collected directly from any of the participants, all information is extracted live in front of crowds.
 
 ---
 
@@ -157,39 +142,37 @@ knitr::kable(licences)
 
 ## 5.1: Excluded data from the audit
 
-\[Every published dataset will demonstrate what an author aimed to prioritize, and lack of data or missing data can show the same. If you removed a column of the unprocessed dataset, describe what it was, and why you decided to remove it. That could be things like sensitive variables, time periods, places, categories. How could this exclusion affect your data points in your analysis? \]
+
+Exclusions will only include a chunk of the 2025 season because of it not existing on the website. In turning the raw game datasets into one big table, there isn't any information at the moment that looks like it will need to be removed. Keeping the extra info will insure that if the EP and EPA statistics aren't figured out or don't prove useful, new statistics can be derived from the play data. The exclusion of part of the 2025 season could possibly impact the data by thinking of maybe teams started to make different decisions in situations as the season progressed over time and coaches got more comfortable or had more data to refer back to. Including the 2024 season as well ensures that there is a large sample size but also that atleast one full season cycle is accounted for in the case of possible changes over a season in strategy.
 
 ## 5.2: Who could be harmed
 
-\[Name a plausible misuse and who would be on the receiving end. Think about parties with an interest in the subject you chose, who are not your intended audience.\]
+An inaccurate model or inaccurate results could paint players, coaches, clubs etc in bad lights and on a larger scale (if I were a highly accredited journalist or publication), jobs or contract terms could be impacted in both good and bad ways. Coaching decisions could be influenced in a misguiding way if outcome is faulty. Teams at lower levels and different leagues could also falsely apply conclusions to their own games and possibly earn negative game outcomes that impact athletes and staff.
 
 ## 5.3: Unreleased working data
 
-\[If there is anything in your working data you would not publish, say what it was and why. If there is nothing, describe why it is okay to publish the working / raw dataset.\]
+I wouldn't exclude any working data if I didn't have to; i think it's a fairly important process of data transparency and organization to have raw script and data in your project files. I did an independent project where I gitignored a large raw data file because it was in the hundreds of megabytes and sometimes it's not super necessary if data wasn't excessively altered. In reference to that project I think I only added 2-3 columns to the original csv. I don't have a license to this data so I can't really release it but I wouldn't hide it on github for reproductive purposes, unless it was a big big file.
 
 ---
 
 # 6: Data Stewardship
 
-**Where it lives.** \[Repository, platform, or institution. It's okay to be realisitic about the project after this course ends, as a GitHub account you stop paying attention to in January is a real answer.\]
+**Where it lives.** A repository on github. If I like how my project looks, I'll likely add it to my public group of projects with some modifications to prove that I am capable of some solid data analysis and coding work with reasonable AI help. I imagine it'll also be nice to look back on if I continue down my career path. 
 
-**Who maintains it.** \[If nobody, say nobody.\]
+**Who maintains it.** Likely nobody, unless I find a new passion in this final project and decide to add seasons and add more games as the league moves forward.
 
-**Formats and dependencies.** \[Will your files open in ten years? Consider what could break if someone tried it in 2036. The package versions, data format, API, links to sources etc.\]
+**Formats and dependencies.** In 2036, it's likely that the website hosting the original data would have been down for years, and maybe R itself (and then Rmd) could be out of date formats. I'm likely not using some complex packages unless I go through with a complex dashboard for data visualization. I could preserve it by documenting R package versions, having a strong README file, and preserving info on the original data sources, maybe dig into the original pdfs from the CFL for each game if I had an extra couple hours.
 
-**Lifespan.** \[How long is this meaningfully usable before it needs updating or should be retired?\]
+**Lifespan.** In sports, the timelines can get real messy. I think I wouldn't use 2023 season data or earlier, so the lifespan of conclusions from 2024-2025 would probably only stretch until 2027-2028 until it starts to be questioned. Or even earlier if there's a big revolution in play style or decision-making tendencies.
 
 -----
 
 # 7: Use of AI
 
-\[State plainly whether you have used AI tools on this project.
 
-Your `AI-LOG.md` will live in this repository and is committed alongside the work it describes. Do not reproduce it here, but use a link such as `/log/AI-LOG.md` to point to it within your final project directory:\]
+**AI log:** `AI-LOG.md` 
 
-**AI log:** `AI-LOG.md` \[— maintained from \[starting date\] and committed alongside each stage of work.\]
-
-\[One short paragraph summarizing your pattern of AI use (if any) so far: which stages, what for, etc. State the model you are using, such as ChatGPT or Claude. If you are continuing to chat to a Gemeni search agent after looking something up, that counts too! If you have not used AI tools at all, say so here and make sure `AI-LOG.md` says the same.\]
+I have been using GPT-6 but I might switch to Claude on my dad's subscription and recommendation as its meant to be much better with code. So when I hit the complex code wall I might use it to ensure I can complete my work in a timely manner and still prioritize my learning. Currently, I have found success in using GPT-6 for scouring the web and getting pointers on viable methods when using R studio and being inexperienced in web scraping. This assignment was very useful because I got to think deeper about my project with really no code work. 
 
 \[**Reminder: the text in this document must be written in your own words.**\]
 
